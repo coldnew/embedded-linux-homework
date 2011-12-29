@@ -1,1 +1,0 @@
-cmd_/home/ggarlic/chardev/char_dev.ko := ld -r -m elf_i386 -T /usr/src/linux-3.1.5-1-ARCH/scripts/module-common.lds --build-id  -o /home/ggarlic/chardev/char_dev.ko /home/ggarlic/chardev/char_dev.o /home/ggarlic/chardev/char_dev.mod.o
