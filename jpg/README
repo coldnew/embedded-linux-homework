@@ -1,0 +1,16 @@
+Exercise 1:
+    Display a JPEG image file in the LCD screen
+
+Exercise 2:
+    display camera video in the screen
+        open Framebuffer device
+        get screen size, do mmap
+        open camera device
+        while(1)
+            read camera data to buffer
+            copy data to framebuffer
+        you can see what you get in LCD
+
+Exercise 3:
+    Display Video on Screen
+    When user press a button, save current picture to a JPEG file

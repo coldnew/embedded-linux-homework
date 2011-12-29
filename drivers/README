@@ -1,0 +1,7 @@
+Write a driver which include following features:
+    provide read/write functions. app can write/read a string(32 bytes length) to/from driver
+    provide an integer variable storage in memory, and an ioctl function to set the value of this integer variable.
+    provide a status display by using /proc filesystem. the proc status should contain
+        the current string data
+        the current value of integer variable
+You also needs to write the application to test this driver

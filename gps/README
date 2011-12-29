@@ -1,0 +1,21 @@
+Exercise 1:
+
+    Get the latitude, longitude, ground speed. Print them out like this:
+        latitude=North 48.07038’
+        longitude=East 11.31000’
+        ground speed=41.4 kph(Kilometers Per Hour)
+    Hint: 1 knot = 1.85200 kph
+
+Exercise 2:
+
+    Time synchronizing
+    1. Get the GPS time from GPS input data
+    2. Set GPS time to Linux system.
+        hint: mktime(), settimeofday()
+
+Exercise 3:
+
+    Read data from GPS, if current position is available, save it to a KML file. put the current time in the description.
+        Hint: use fopen(), fwrite() to write a file in filesystem.
+    Upload this file to PC and open it with Google map or Google Earth. See what you get.
+

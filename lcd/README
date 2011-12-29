@@ -1,0 +1,10 @@
+Basic painting function
+
+Implement several painting functions for LCD screen (RGB565 mode)
+    void draw_point(int x, int y, unsigned short color);
+    void fill_rect(int x, int y, int width, int height, unsigned short color);
+    void draw_line(int x1, int y1, int x2, int y2, unsigned short color);
+Clear the screen with white background
+Fill a rectangle in screen: fill_rect(0,0,10,20);
+Move this rect from (0,0) to (200,200) with smooth animation
+

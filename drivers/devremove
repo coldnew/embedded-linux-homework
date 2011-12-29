@@ -1,0 +1,7 @@
+#!/bin/bash
+#unload a module
+ 
+module="char_dev"
+device="char_dev"
+/sbin/rmmod $module || exit 1
+rm -f /dev/${device}

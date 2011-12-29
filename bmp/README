@@ -1,0 +1,10 @@
+Display BMP image on LCD screen
+
+Use Windows Paint or any other tools to create a 320*240 image, save it in 24bit BMP format
+upload the image to target board
+write a program to
+    open BMP file
+    read the BMP file header
+    read the pixels in BMP data and display it on screen
+
+

@@ -1,0 +1,15 @@
+This is my homework for the Embedded Linux course.
+
+The hardware platform is TQ2440, which uses a Samsung S3C2440 core.
+
+The cross-compiling toolchain i used is officially shipped with the TQ2440 board, including:
+    gcc-4.3.3,
+    busybox-1.16.0
+    linux-2.6.30
+    qtopia-2.2.0-2.6.30.4
+    qt-4.5
+
+The toolchain was correctly builded and installed according to the offical manual.
+
+Note:
+    all the code should be compiled with *arm-linux-gcc*, EXECEPT the DRIVERS one. that is to say, the target platform of drivers homework is x86; and the others' is ARM.
