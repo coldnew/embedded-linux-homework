@@ -1,6 +1,8 @@
 #!/bin/bash
 #load a module
- 
+#author : ganquan
+#modified: ggarlic
+
 module="char_dev"
 device="char_dev"
 mode="777"

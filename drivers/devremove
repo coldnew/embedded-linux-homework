@@ -1,5 +1,7 @@
 #!/bin/bash
 #unload a module
+#author: ganquan
+#modified: ggarilc
  
 module="char_dev"
 device="char_dev"

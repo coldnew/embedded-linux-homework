@@ -5,3 +5,9 @@ Write a driver which include following features:
         the current string data
         the current value of integer variable
 You also needs to write the application to test this driver
+
+USEAGE:
+    char_dev.c:     the driver source code
+    devload:        a script to load a module
+    devremove:      a script to remove a module
+    application:    application to test the driver
