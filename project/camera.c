@@ -9,26 +9,32 @@
 #include <linux/kd.h>
 #include <string.h>
 #include <jpeglib.h>
+#include <time.h>
+
 
 char * fbmem;
-int fp, camera, fpButton, width, height;
+int fp, camera, fpButton, width, height, fpBuzzer;
 unsigned int bpp;
 char * cammem;
+char * cmpbuffer;
 char button[4];
 long screensize;
+int counter;
+int flag;
 
 char* RGB565to888(char* buffer);
-GLOBAL(void) writeJPG (char * filename, int width, int height, int quality);
+GLOBAL(void) writeJPG (char * filename, int quality);
+void saveFile();
+void buzzerCtl(int mode); 
+int dectMov(unsigned short old, unsigned short new);
 
-int main(int argc, const char *argv[])
+int main(int argc, char *argv[])
 {
     struct fb_var_screeninfo vinfo;
     struct fb_fix_screeninfo finfo;
 
     char button[4];
-    char* filename = "screenshot.jpg";
     int x, y;
-
     /*-----------------------------------------------------------------------------
      *  init fb
      *-----------------------------------------------------------------------------*/
@@ -59,12 +65,18 @@ int main(int argc, const char *argv[])
         perror("error opening camera\n");
         exit(3);
     }
-    cammem = (char*)malloc(screensize*sizeof(char));
+    cammem = (char*)malloc(screensize * sizeof(char));
     if(cammem == NULL)
     {
-        perror("error mapping camera to memory\n");
-        exit(4);
+        perror("error mallocing camera memory\n");
+        exit(4);//exit 之后，之前打开的设备怎么办？谁关？
     }
+
+//    cmpbuffer = (char*)malloc(screensize * sizeof(char));
+//    if (cmpbuffer == NULL) {
+//        perror("error mallocing new camera memory\n");
+ //       exit(8);
+ //   }
 
     /*-----------------------------------------------------------------------------
      *  init button
@@ -76,13 +88,21 @@ int main(int argc, const char *argv[])
     }
 
     /*-----------------------------------------------------------------------------
+     *  init buzzer
+     *-----------------------------------------------------------------------------*/
+    if ((fpBuzzer = open("/dev/PWM-Test", 0)) < 0) {
+        perror("error opening buzzer device\n");
+        exit(7);
+    }
+    /*-----------------------------------------------------------------------------
      *  main procedure
      *-----------------------------------------------------------------------------*/
+    
     for(;;)
     {
         read(camera, cammem, screensize);
         read(fpButton, button, 4);
-
+        
         for(y = 0; y < height*2 ; y++)
         {
             for(x = 0; x < width*2 ; x++)
@@ -90,11 +110,24 @@ int main(int argc, const char *argv[])
                 *(unsigned short*)(fbmem + width * y + x) = *(unsigned short*)(cammem + width * y + x);
             }
         }
-
-        if (button[0] == '1' || button[1] == '1' || button[2] == '1' || button[3] == '1'){
-            writeJPG(filename, width, height, 100);
-            break;
+        buzzerCtl(0);
+        read(camera, cammem, 153600);
+        
+        for (x = 210; x > 30 ; x-=5) {
+            for (y = 290; y > 30; y-=5) {
+                    dectMov(*(unsigned short*)(fbmem + 320*x*2+y*2),*(unsigned short*)(cammem + 320*x*2+y*2));
+            }
         }
+        printf("%d\n",counter);
+        if (counter > 100)
+            flag = 1;
+        counter = 0;
+
+        buzzerCtl(1);
+
+        if (button[0] == '1' || button[1] == '1' || button[3] == '1' 
+             || button[2] == '1')  saveFile();
+
     }
 
     //close cam
@@ -108,6 +141,7 @@ int main(int argc, const char *argv[])
     munmap(fbmem,screensize);
     close(fp);
 
+    close(fpBuzzer);
     return 0;
 }
 
@@ -125,11 +159,13 @@ char* RGB565to888(char* buffer)
     return RGB888;
 }
 
-GLOBAL(void) writeJPG (char * filename, int width, int height, int quality)
+GLOBAL(void) writeJPG (char * filename, int quality)
 {
 
     struct jpeg_compress_struct cinfo;
     struct jpeg_error_mgr jerr;
+    char path[40] = "galleries/";
+    strcat(path, filename);
 
     FILE * outfile;		/* target file */
     JSAMPROW row_pointer[1];	/* pointer to JSAMPLE row[s] */
@@ -140,7 +176,7 @@ GLOBAL(void) writeJPG (char * filename, int width, int height, int quality)
     /* Now we can initialize the JPEG compression object. */
     jpeg_create_compress(&cinfo);
 
-    if ((outfile = fopen(filename, "wb")) == NULL) {
+    if ((outfile = fopen(path, "wb")) == NULL) {
         perror("error opening file\n");
         exit(6);
     }
@@ -171,3 +207,61 @@ GLOBAL(void) writeJPG (char * filename, int width, int height, int quality)
 
 }
 
+void saveFile()
+{
+    time_t now;
+    char fname[24];
+
+    fname[0] = '\0';
+
+    now = time(NULL);
+
+
+    /*-----------------------------------------------------------------------------
+     *  generate filename using time. the format is "month day_hour minute
+     *  second.jpg" and no space in file name.
+     *-----------------------------------------------------------------------------*/
+    if (now != -1) 
+        strftime(fname, 24, "%m%d_%H%M%S.jpg", gmtime(&now));
+
+    writeJPG(fname, 100);
+    printf("done\n");
+}
+
+void buzzerCtl(int mode)
+{  
+
+
+    if (mode == 1)
+    { if(flag == 1)
+        {
+            ioctl(fpBuzzer, 1, 20);
+            flag = 0;
+        };}
+    else if (mode == 0) 
+        ioctl(fpBuzzer, 0, 20);
+    else
+    {
+        perror("wrong buzzCtl param");
+        exit(8);
+    }
+
+}
+
+int dectMov(unsigned short old, unsigned short new)
+{
+    char oldbuff[3];
+    char newbuff[3];
+
+    oldbuff[0] = (old & 0xf800) >> 11;
+    oldbuff[1] = (old & 0x7e0) >> 5;
+    oldbuff[2] = old & 0x1f;
+
+    newbuff[0] = (new & 0xf800) >> 11;
+    newbuff[1] = (new & 0x7e0) >> 5;
+    newbuff[2] = new & 0x1f;
+
+    if(abs(oldbuff[0]^newbuff[0])>30 || abs(oldbuff[1]^newbuff[1])>30 || abs(oldbuff[2]^newbuff[2])>30) 
+        counter++;
+
+}

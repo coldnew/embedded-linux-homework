@@ -1,0 +1,10 @@
+Embedded Video System
+    Display live video to LCD screen
+    Capture picture by camera(triggered by button or remote controller)
+    Store the picture to JPEG file
+    Browser & display stored pictures in LCD screen
+    Browser pictures from remote PC(using ethernet)
+    Detect live object in the video. Ring the alarm(by using PMW buzzer)
+
+NOTE:
+    'cos my partener codes the work of browing pictures from a remote pc, i doesn't include this part of code here. he's good at Flex, and do it using Flex.
